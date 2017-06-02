@@ -16,86 +16,91 @@
 #include <openssl/aes.h>
 #include <sstream>
 
+
 //#include <SDL2/SDL.h>
 
 using namespace std;
 
+/**
+ * parent class for all types of records-- domains, logins, passwords
+ */
 class CRecord{
-    //CRecord is a parent class for domains, usernames and passwords
-    public:
-      CRecord();
-     // ~CRecord();
-      virtual                  ~CRecord();
-      virtual CRecord &       AddRec (string maintext, string note) = 0;
-                              CRecord(string maintext, string note);
-                              CRecord(string maintext);
-      virtual bool            PrintRec() const;
-      string                  getMainText() const;
-      void                    setMainText(string maintext);
-      string                  getNote() const;
-      void                    setNote(string note);
-      char                    getType() const;
-      void                    setType(char type);
-      bool                    operator< (const CRecord &com) const;
-
-    void setM_MainText(const string &m_MainText);
-
-//protected:
-      string                  m_MainText;
-      string                  m_Note;
-      char                    m_Type;
-      unsigned int            m_UsageCount;
+public:
+    CRecord();
+    CRecord(string maintext, string note);
+    CRecord(string maintext, string note,int usage);
+    CRecord(string maintext);
+    virtual                 ~CRecord();
+    virtual CRecord &       AddRec (string maintext, string note) {return *this;};
+    /**
+     * virtual function for printing
+     * @return always false
+     */
+    virtual bool            PrintRec() const;
+    /**
+     * The following are getters and setters for the main text of records, its note and type
+     */
+    string                  getMainText() const;
+    void                    setMainText(string maintext);
+    string                  getNote() const;
+    void                    setNote(string note);
+    char                    getType() const;
+    virtual void            setType();
+    /**
+     *  overloaded operator for the set operations
+     * @param com
+     * @return
+     */
+    bool                    operator< (const CRecord &com) const;
+    string                  m_MainText;
+protected:
+    string                  m_Note;
+    char                    m_Type;
+    unsigned int            m_UsageCount;
 };
-
+/**
+ * structure for the set operations
+ */
 struct find_by_maintext {
     find_by_maintext(const string & maintext) : maintext(maintext) {}
     bool operator()(const CRecord & cRec) {
-          return cRec.getMainText() == maintext;
+        return cRec.getMainText() == maintext;
     }
 private:
     string maintext;
 };
 
+/**
+ * child class of records for domain, it has overriden construction, destruction, adding and prinitng
+ */
 class CDomain:public CRecord{
-    public:
-      //CDomain is a class for each domain
-                              CDomain();
-                              CDomain(string maintext);
-   //   ~CDomain();
-      virtual                 ~CDomain() override;
-      virtual bool            PrintRec () const override;
-      virtual CDomain &       AddRec (string text, string note) override;
+public:
+    vector <string>         used;
+    CDomain();
+    CDomain(string maintext, string note,int usage);
+    CDomain(string maintext);
+    virtual                 ~CDomain() override;
+    virtual bool            PrintRec () const override;
+    virtual void            setType() override;
+    virtual CDomain &       AddRec (string text, string note) override;
 
 };
+
+/**
+ * child class of records for password, it has overriden construction, destruction, adding and printing
+ */
 class CPassword:public CRecord{
-    public:
-      //CPassword is a class for storing single passwords
-                              CPassword();
-    //  ~CPassword();
-      virtual                 ~CPassword() override;
-      virtual bool            PrintRec () const override;
-      //Password is not writtable, so it has its own method
-      virtual CPassword &     AddRec (string text, string note)  override;
-    private:
-      string                  m_hash;
+public:
+    CPassword();
+    virtual                 ~CPassword() override;
+    virtual bool            PrintRec () const override;
+    virtual void            setType() override;
+    virtual CPassword &     AddRec (string text, string note)  override;
+    vector <string>         used;
+private:
+    string                  m_hash;
 };
-struct SCouple{
-    public:
-      bool                    operator <(SCouple com);
-      CDomain                 CDom;
-      CPassword               CPas;
-};
-class CLogin:public CRecord{
-    public:
-                              CLogin();
-                              CLogin(string maintext);
-   //   ~CLogin();
-      virtual                 ~CLogin() override;
-      virtual bool            PrintRec () const override;
-      //CLogin is a class for single usernames
-      vector<SCouple>         m_connections;
-      virtual CLogin &        AddRec (string text, string note) override;
-};
+
 
 
 

@@ -4,10 +4,13 @@
 using namespace std;
 
 template <typename T>
-int errorHandlerD(T err_desc,int err_number){
+int errorHandlerD(T err_desc,const int & err_number){
     cout<<"error: "<<err_desc<<endl;
     return err_number;
 }
+
+void CRecord::setType() {}
+
 
 CRecord::CRecord(){
     m_UsageCount=0;
@@ -22,6 +25,12 @@ CRecord::CRecord(string maintext, string note) {
     m_MainText=maintext;
     m_Note=note;
     m_UsageCount=0;
+}
+
+CRecord::CRecord(string maintext, string note,int usage) {
+    m_MainText=maintext;
+    m_Note=note;
+    m_UsageCount=usage;
 }
 
 string CRecord::getMainText() const {
@@ -50,10 +59,6 @@ string CRecord::getNote() const {
     return m_Note;
 }
 
-void CRecord::setType(char type) {
-    m_Type=type;
-}
-
 bool CRecord::PrintRec() const {
     return false;
 }
@@ -65,65 +70,37 @@ CPassword::CPassword(){
     //hesovani
 }
 
+void CPassword::setType() {
+    m_Type='p';
+}
+
 bool CPassword::PrintRec() const {
-    cout<<"Neni mozne vypisovat heslo"<<endl;
+        cout<<"Password: "<<this->m_MainText<<" ";
     return false;
 }
 
 CPassword &CPassword::AddRec(string text, string note)  {
-    cout<<text<<note;
+    string x=text;x=note;
     return *this;
 }
 
 CPassword::~CPassword() { }
 
-bool SCouple::operator<(SCouple com) {
-    return (this->CDom.getMainText() > com.CDom.getMainText());
-}
-
-CLogin::CLogin(){
-    this->m_Type='l';
-}
-
-CLogin::CLogin(string maintext) : CRecord(maintext){
-    this->m_MainText=maintext;
-    this->m_Type='l';
-}
-
-bool CLogin::PrintRec() const {
-    cout<<"Login: "<<this->m_MainText;
-    if(m_Note!="")
-        cout<<", "<<this->m_Note<<"\n";
-    else
-        cout<<"\n";
-    for(size_t i=0;i<m_connections.size();i++) {
-        m_connections[i].CDom.PrintRec();
-        cout << " : ";
-        m_connections[i].CPas.PrintRec();
-        cout << "\n";
-    }
-    return false;
-}
-
-CLogin &CLogin::AddRec(string text, string note) {
-    CLogin * y=new CLogin;
-    y->m_MainText=text;
-    y->m_Note=note;
-    return *y;
-}
-
-CLogin::~CLogin() { }
-
 CDomain::CDomain(){
     m_Type='d';
 }
 
+CDomain::CDomain(string maintext, string note, int usage) {
+    m_MainText=maintext;
+    m_Note=note;
+    m_UsageCount=usage;
+}
+
 bool CDomain::PrintRec() const {
-    cout<<"Domena: "<<this->m_MainText;
+    cout<<"Domain: "<<this->m_MainText;
     if(m_Note!="")
-        cout<<", "<<this->m_Note<<"\n";
-    else
-        cout<<"\n";
+        cout<<", "<<this->m_Note;
+    cout<<" ";
     return false;
 }
 
@@ -139,3 +116,7 @@ CDomain &CDomain::AddRec(string text, string note) {
 CDomain::~CDomain() { }
 
 CDomain::CDomain(string maintext) : CRecord(maintext) { }
+
+void CDomain::setType() {
+    m_Type='d';
+}

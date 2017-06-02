@@ -1,6 +1,5 @@
 #include <iostream>
 
-
 #include "CInteract.h"
 
 int main() {
